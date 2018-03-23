@@ -1,0 +1,92 @@
+<div class="navbar navbar-fixed-top scroll-hide">
+  <div class="container-fluid top-bar">
+    <div class="pull-right">
+      <ul class="nav navbar-nav pull-right">
+        <li class="dropdown user hidden-xs"><a data-toggle="dropdown" class="dropdown-toggle" href="/logout">
+          <img width="34" height="34" src="<%= @user.picurl %>"/><%= @user.name %><b class="caret"></b></a>
+          <ul class="dropdown-menu">
+            <li><a href="/profile">
+              <i class="icon-user"></i>个人设置</a>
+            </li>
+            <li><a href="/logout">
+              <i class="icon-signout"></i>退出</a>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+    <a class="logo" href="/main"></a>
+    <button class="navbar-toggle"><span class="icon-bar"></span><span class="icon-bar"></span><span
+    class="icon-bar"></span></button>
+  </div>
+  <div class="container-fluid main-nav clearfix">
+    <div class="nav-collapse">
+      <ul class="nav">
+        <li class="dropdown">
+          <a data-toggle="dropdown" href="#">
+            <span aria-hidden="true" class="se7en-star"></span>随便看看<b class="caret"></b>
+          </a>
+          <ul class="dropdown-menu">
+            <li>
+              <a href="/main">果仁动态</a>
+            </li>
+            <li>
+              <a href="/main?type=2">组团信息</a>
+            </li>
+            <li>
+              <a href="/main?type=3">失物信息</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="/microposts"><span aria-hidden="true" class="se7en-home"></span>我的动态</a>
+        </li>
+        <li>
+          <a href="/chat">
+            <span aria-hidden="true" class="se7en-envelope"></span>
+            私信
+            <div id="msgNum" class="label label-info">0</div>
+          </a>
+        </li>
+        <li>
+          <a href="/logout"><span aria-hidden="true" class="se7en-pages"></span>退出</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<script>
+
+  function addNotifyLable(uniquename) {
+    var yuandian = '<i class="icon-circle text-success"></i>';
+    var results = $('.user_name:contains(' + uniquename + ')');
+    for (var i = 0; i < results.length; i++) {
+      if ($(results[i]).text() === uniquename) {
+        $(results[i]).parent().append(yuandian);
+      }
+    }
+  }
+
+  function notify() {
+    $.ajax({
+      type: 'get',
+      dataType: 'json',
+      url: '/notify',
+      success: function (data, textStatus, jqXHR) {
+        $("#msgNum"
+        ).text(data["unreaded"]);
+      }
+    });
+    return false;
+  }
+
+  var notify_num_ticker;
+  $(document).ready(function () {
+    notify();
+    notify_num_ticker = setInterval('notify()', 10000);
+    $("#msg").attr("disabled", true);
+  });
+
+
+</script>

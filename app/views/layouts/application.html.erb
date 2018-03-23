@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <%= render 'layouts/title' %>
+  <%= javascript_tag "var AUTH_TOKEN = #{form_authenticity_token.inspect};" if protect_against_forgery? %>
+  <%= render 'layouts/refer' %>
+</head>
+
+<body class="<%= yield(:body_class) %>">
+<% flash.each do |message_type, message| %>
+    <%= content_tag(:div, message, class: "alert alert-#{message_type}") %>
+<% end %>
+
+<%= yield %>
+
+<%= debug(params) if Rails.env.development? %>
+</body>
+</html>

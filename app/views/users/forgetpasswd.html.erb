@@ -1,0 +1,22 @@
+<% provide(:title, '忘记密码') %>
+<% provide(:body_class, 'login2') %>
+
+<div class="login-wrapper">
+  <a href="#"><img width="210" height="70" src="images/logo/guoren.png"/></a>
+
+  <%= form_tag("/forgetpasswd", method: "get") do %>
+
+
+      <div class="form-group">
+        <div class="input-group">
+          <span class="input-group-addon"><i class="icon-envelope"></i></span><input class="form-control"
+                                                                                     placeholder="请输入邮箱地址"
+                                                                                     name="email"
+                                                                                     type="email">
+        </div>
+      </div>
+
+      <%= submit_tag "找回密码", class: "btn btn-primary btn-block" %>
+  <% end %>
+
+</div>

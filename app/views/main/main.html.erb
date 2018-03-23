@@ -1,0 +1,205 @@
+<% provide(:title, @user.name) %>
+
+<div class="modal-shiftfix">
+
+  <div class="container-fluid main-content">
+    <%= render 'layouts/nav' %>
+    <div class="row">
+      <div class="col-lg-12">
+        <% @micro_posts_array.each do |micro_post| %>
+            <div class="social-wrapper">
+              <div class="social-container">
+                <div class="social-entry" id="postid_<%= micro_post["postid"] %>">
+                  <div class="widget-container fluid-height isotope-item">
+                    <div class="profile-info clearfix" style="padding: 20px 20px 0 20px">
+                      <img width="50" height="50" class="social-avatar pull-left"
+                           src="<%= micro_post["userpic"] %>">
+                      <a class="user-name"><i class="icon-user"></i><%= micro_post["username"] %></a><br>
+                      <div class="profile-details">
+                        <p>
+                          <label class="label label-info" style="margin: 0"><%= micro_post["type"] %></label>
+                          <i class="icon-time"><em><%= micro_post["time"] %></em></i>
+                        </p>
+                      </div>
+                    </div>
+                    <div class="padded">
+                      <p class="content postcontent"><%= micro_post["content"] %></p>
+                      <% if micro_post["pics"] %>
+                          <div class="text-center">
+                            <% micro_post["pics"].each do |pic| %>
+                                <img width="250" class="social-content-media" src="<%= "data/" + pic %>"/>
+                            <% end %>
+                          </div>
+                      <% end %>
+                    </div>
+                    <% if micro_post_belong_to_user(micro_post["postid"], @user) == false %>
+                        <% if micro_post["type"] == "组团信息" %>
+                            <div class="social-button">
+                              <% if joinded_activity(micro_post["postid"], @user.name) %>
+                                  <button class="btn btn-lg btn-success-outline activity">取消报名</button>
+                                  <div class="activity-detail text-center"></div>
+                              <% else %>
+                                  <button class="btn btn-lg btn-success-outline activity">报名参加</button>
+                                  <div class="activity-detail text-center"></div>
+                              <% end %>
+                            </div>
+                        <% end %>
+                        <% if micro_post["type"] == "失物招领" %>
+                            <div class="social-button">
+                              <button class="btn btn-success-outline lost">跟ta联系
+                              </button>
+                            </div>
+                        <% end %>
+                    <% end %>
+                  </div>
+                  <div class="comment-button">
+                    <button class="btn btn-block btn-default-outline showcomment">
+                      显示评论
+                    </button>
+                  </div>
+                  <div class="comments padded hidden">
+                    <input class="form-control makecomment" placeholder="写评论..." type="text">
+                  </div>
+                </div>
+              </div>
+            </div>
+        <% end %>
+      </div>
+    </div>
+    <div class="row">
+      <nav class="text-center">
+        <%= will_paginate @posts, :page_links => false, :previous_label => "前一页", :next_label => "后一页" %>
+      </nav>
+    </div>
+  </div>
+</div>
+
+<script>
+
+  function comment_process(username, userpic, comment) {
+    var commentElem = '<div class="comment">' +
+        '<img width="40" height="40" class="social-avatars pull-left"' +
+        'src=' +
+        userpic +
+        '/>' +
+        '<a class="user-name">' +
+        username +
+        '</a>' +
+        '<p>' +
+        comment +
+        '</p>' +
+        '</div>';
+
+    return commentElem;
+  }
+  function getComments(id) {
+    $.ajax({
+      type: 'get',
+      dataType: 'json',
+      data: {micropost_id: id},
+      url: '/comments',
+      success: function (data, textStatus, jqXHR) {
+        var micro_post_id = "#" + "postid_" + id;
+        var comments = $(micro_post_id.toString()).parent().next();
+        var comments = $(micro_post_id.toString()).find(".comments");
+        comments.find(".comment").remove();
+        comments.find("p").remove();
+        if (data["comments"].length == 0) {
+          comments.prepend("<p class='text-center'>无评论</p>");
+        }
+        else {
+          var comments_array = data["comments"];
+          for (var i = 0; i < comments_array.length; i++) {
+            comments.prepend(comment_process(comments_array[i]["username"],
+                comments_array[i]["userpic"], comments_array[i]["content"]))
+          }
+        }
+      }
+    });
+  }
+  $(".showcomment").bind("click", function () {
+    var text = $(this).text();
+    if (text == "隐藏评论") {
+      $(this).parent().next(".comments").addClass("hidden");
+      $(this).text("显示评论");
+    }
+    else {
+      $(this).parent().next(".comments").removeClass("hidden");
+      $(this).text("隐藏评论");
+      var micropost_id = $(this).parent().parent().attr("id");
+      if (micropost_id.indexOf('_') > 0) {
+        var id = micropost_id.slice(micropost_id.indexOf('_') + 1);
+        getComments(id);
+      }
+    }
+  });
+
+  $(".makecomment").bind("keyup", function (e) {
+    var inputText = $(this).val();
+    if (inputText.length <= 0) {
+      return;
+    }
+    var username = "";
+    var userpic = "";
+    var enterObject = $(this);
+    var micropost = $(this).parent().parent().attr("id");
+    var micropost_id = micropost.slice(micropost.indexOf("_") + 1);
+    if (e.keyCode == "13") {
+      $.ajax({
+        type: 'post',
+        dataType: 'json',
+        data: {micropost_id: micropost_id, content: inputText, authenticity_token: AUTH_TOKEN},
+        url: '/newcomment',
+        success: function (data, textStatus, jqXHR) {
+          if (data["username"] && data["userpic"]) {
+            enterObject.parent().children("p").remove();
+            enterObject.before(comment_process(data["username"], data["userpic"], inputText));
+          }
+          $(".makecomment").val("");
+        }
+      });
+    }
+  });
+  $(".activity").bind("click", function () {
+    var activity = $(this);
+    var text = activity.text().trim();
+    var micropost = $(this).parent().parent().parent();
+    var micropost_id = micropost.attr("id");
+    if (micropost_id.indexOf('_') > 0) {
+      var id = micropost_id.slice(micropost_id.indexOf('_') + 1);
+      if (text == "报名参加") {
+        $.ajax({
+          type: 'get',
+          dataType: 'json',
+          data: {micropost_id: id, join: true},
+          url: '/activity',
+          success: function (data, textStatus, jqXHR) {
+            //console.log(data["total_num"]);
+            var engage_people = data["total_num"];
+            var show_text = "已有" + engage_people + "人参加该活动" + '\n' + data["total_names"] + "参加了活动";
+            activity.text("取消报名");
+            micropost.find(".activity-detail").text(show_text);
+          }
+        });
+      }
+      else {
+        $.ajax({
+          type: 'get',
+          dataType: 'json',
+          data: {micropost_id: id, join: false},
+          url: '/activity',
+          success: function (data, textStatus, jqXHR) {
+            activity.text("报名参加");
+            micropost.find(".activity-detail").text("成功取消报名");
+          }
+        });
+      }
+    }
+  });
+
+  $(".lost").bind("click", function () {
+    window.open("/chat");
+  });
+</script>
+
+

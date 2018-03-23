@@ -1,0 +1,261 @@
+<% provide(:title, @user.name) %>
+
+
+<div class="modal-shiftfix">
+
+  <!-- Navigation -->
+  <%= render 'layouts/nav' %>
+  <!-- End Navigation -->
+
+  <div class="container-fluid main-content padded" id="user-page">
+    <div class="row" id="new-post">
+      <div class="widget-container fluid-height clearfix">
+        <div class="heading">
+          <i class="icon-reorder"></i>发布新信息
+        </div>
+
+        <%= form_tag("/newpost", method: "post", class: "form-horizontal", enctype: "multipart/form-data") do %>
+
+            <div class="form-group ">
+              <div class="col-md-2">
+                <select class="form-control" name="post_type">
+                  <option value="1">新鲜事</option>
+                  <option value="2">组团信息</option>
+                  <option value="3">失物招领</option>
+                </select>
+              </div>
+              <div class="col-md-10">
+                <input class="form-control" placeholder="标题" type="text" name="title">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <div class="col-md-12">
+                <textarea class="form-control" rows="3" name="content"></textarea>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <div class="col-md-12">
+                <div id="image-upload">
+                  <div id="total">当前选择上传0个图片</div>
+                  <input class="btn btn-default" type="button" value="添加图片" id="btnAdd" onclick="selectAttachment();">&nbsp;
+                  <input class="btn btn-default" type="button" value="清空图片" id="btnClear" style="display:none" onclick="clearAttachment();">
+                  <div id="attachmentList" style="display: none"></div>
+                  <div id="pics">
+
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <div class="col-md-12 text-center">
+                <button class="btn btn-primary" type="submit">发布</button>
+              </div>
+            </div>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="posts">
+      <% @micro_posts.each do |micro_post| %>
+          <div class="micro-post" id="<%= micro_post["postid"] %>">
+            <button class="close delete-post" data-dismiss="alert" type="button">×</button>
+            <div class="widget-container fluid-height padded">
+              <div class="heading col-md-12">
+                <i class="icon-tags"><%= micro_post["type"] %></i>
+                <i class="icon-time"><%= micro_post["time"] %></i>
+              </div>
+              <div class="col-md-12">
+                <p class="content"><%= micro_post["content"] %></p>
+                <% if micro_post["pics"] %>
+                    <div class="text-center">
+                      <% micro_post["pics"].each do |pic| %>
+                          <img width="250" class="social-content-media" src="<%= "data/" + pic %>"/>
+                      <% end %>
+                    </div>
+                <% end %>
+              </div>
+              <div class="col-md-12">
+                <div class="btn btn-default btn-block show-details">
+                  查看详情
+                </div>
+              </div>
+            </div>
+            <div class="activity-details" hidden>
+              <% if micro_post["type"] == "组团信息" %>
+                  <div class="widget-container fluid-height">
+                    <div class="heading">
+                      <i class="icon-align-center"> 活动详情 </i>
+                    </div>
+                    <div class="widget-content padded">
+                      <h3 class="text-center">已有<%= micro_post["peo_num"] %>人参加活动</h3>
+                      <p><%= micro_post["peo_names"] %>参加了该活动</p>
+                    </div>
+                  </div>
+              <% end %>
+              <% if !micro_post["comments"].empty? %>
+                  <div class="widget-container fluid-height scrollable list user-comments">
+                    <div class="heading">
+                      <i class="icon-mail-forward"> 评论 </i>
+                    </div>
+                    <div class="widget-content fluid-height">
+                      <ul>
+                        <% micro_post["comments"].each do |comment| %>
+                            <li>
+                              <div>
+                                <a class="user-name"><%= get_user_name_from_id(comment.user_id) %></a><em></em>
+                              </div>
+                              <div>
+                                <p><%= comment.content %></p>
+                              </div>
+                            </li>
+                        <% end %>
+                      </ul>
+                    </div>
+                  </div>
+              <% else %>
+                  <p class="text-center alert-info">暂无评论</p>
+              <% end %>
+            </div>
+          </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+  var pic_num = 0; // 用来动态生成span,upfile的id
+  function addAttachmentToList() {
+    if (findAttachment(event.srcElement.value)) return; //如果此文档已在图片列表中则不再添加
+    if (extractFileName(event.srcElement.value)) {
+      // 动态创建图片信息栏并添加到图片列表中
+      var span = document.createElement('span');
+      span.id = '_attachment' + pic_num;
+      span.innerHTML = extractFileName(event.srcElement.value) +
+          '&nbsp;<a href="javascript:delAttachment(' + (pic_num++) + ')">删除</a><br/>';
+      span.title = event.srcElement.value;
+      G('attachmentList').appendChild(span);
+    }
+    // 显示图片列表并变换添加图片按钮文本
+    if (G('attachmentList').style.display == 'none') {
+      G('btnAdd').value = '继续添加';
+      G('attachmentList').style.display = '';
+      G('btnClear').style.display = '';
+    }
+
+    G('total').innerText = '当前选择上传' + G('attachmentList').childNodes.length + '个图片';
+  }
+
+  function selectAttachment() {
+    // 先清除无效动态生成的多余upfile
+    cleanInvalidUpfile();
+
+    // 动态创建上传控件并与span对应
+    var upfile = '<input type="file" style="display:none" multiple name="pictures[]" onchange="addAttachmentToList();" id="_upfile' + pic_num + '">';
+    G('pics').insertAdjacentHTML('beforeEnd', upfile);
+    G('_upfile' + pic_num).click();
+  }
+
+  function extractFileName(fn) {
+    var index = fn.substr(fn.lastIndexOf('.')).toLowerCase();
+    if (index == '.png' || index == '.jpg' || index == '.jpeg') {
+      return fn.substr(fn.lastIndexOf('\\') + 1);
+    }
+    else {
+      alert('请上传.png或.jpg格式的图片!');
+      return 0;
+    }
+  }
+
+  function findAttachment(fn) {
+    var o = G('attachmentList').getElementsByTagName('span');
+    for (var i = 0; i < o.length; i++)
+      if (o[i].title == fn) return true;
+    return false;
+  }
+
+  function delAttachment(id) {
+    G('attachmentList').removeChild(G('_attachment' + id));
+    G('pics').removeChild(G('_upfile' + id));
+
+    // 当图片列表为空则不显示并且变化添加图片按钮文本
+    if (G('attachmentList').childNodes.length == 0) {
+      G('btnAdd').value = '添加图片';
+      G('attachmentList').style.display = 'none';
+      G('btnClear').style.display = 'none';
+    }
+
+    G('total').innerText = '当前选择上传' + G('attachmentList').childNodes.length + '个图片';
+  }
+
+  function cleanInvalidUpfile() {
+    var o = document.body.getElementsByTagName('input');
+    for (var i = o.length - 1; i >= 0; i--)
+      if (o[i].type == 'file' && o[i].id.indexOf('_upfile') == 0) {
+        if (!G('_attachment' + o[i].id.substr(7)))
+          G('pics').removeChild(o[i]);
+      }
+  }
+
+  function clearAttachment() {
+    var o = G('attachmentList').childNodes;
+    for (var i = o.length - 1; i >= 0; i--)
+      G('attachmentList').removeChild(o[i]);
+
+    o = document.body.getElementsByTagName('input');
+    for (var i = o.length - 1; i >= 0; i--)
+      if (o[i].type == 'file' && o[i].id.indexOf('_upfile') == 0) {
+        document.body.removeChild(o[i]);
+      }
+
+    G('btnAdd').value = '添加图片';
+    G('attachmentList').style.display = 'none';
+    G('btnClear').style.display = 'none';
+    G('total').innerText = '当前选择上传0个图片';
+
+  }
+
+
+  function G(id) {
+    return document.getElementById(id);
+  }
+
+
+  $(".delete-post").bind("click", function () {
+    var errorhtml = '<div class="alert alert-danger">' +
+        '<button class="close" data-dismiss="alert" type="button">×</button>删除失败</div>';
+    var successhtml = '<div class="alert alert-success">' +
+        '<button class="close" data-dismiss="alert" type="button">×</button>删除成功</div>';
+    var micropost_id = $(this).parent().attr("id");
+    $.ajax({
+      type: 'get',
+      dataType: 'json',
+      data: {micropost_id: micropost_id},
+      url: '/deletepost',
+      success: function (data, textStatus, jqXHR) {
+        if (data['status'] == true) {
+          $('.posts').before(successhtml);
+        }
+        else {
+          $('.posts').before(errorhtml);
+        }
+      }
+    });
+  });
+  $('.show-details').bind("click", function () {
+    var current_button = $(this);
+    var micropost = current_button.parent().parent().parent();
+    var text = current_button.text().trim();
+    if (text == "查看详情") {
+      micropost.find(".activity-details").show();
+      current_button.text("隐藏详情");
+    }
+    else {
+      micropost.find(".activity-details").hide();
+      current_button.text("查看详情");
+    }
+
+  })
+</script>

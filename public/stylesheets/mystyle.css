@@ -1,0 +1,159 @@
+#profile .row {
+    margin-top: 5px;
+}
+
+#profile .form-group {
+    margin-bottom: 0;
+}
+
+#picture-label {
+    font-size: large;
+    margin: 100px 0;
+}
+
+#profile .fileupload .img-thumbnail {
+    margin: 10px;
+    border: 2px lawngreen solid;
+}
+
+#profile .col-md-2 .text-center {
+    padding: 100px;
+}
+
+#new-post .label {
+    margin-bottom: 0;
+    text-align: center;
+}
+
+#new-post .form-horizontal .form-group {
+    margin: 0 0 0 0;
+}
+
+#user-page .widget-container {
+    margin: 5px 5px 5px 5px;
+}
+
+#user-page textarea {
+    height: 100px;
+}
+
+.form-group .btn {
+    margin: 0px 0px 0px 0px;
+}
+
+.btn.btn-default-outline.btn-block {
+    margin: 3px 0 3px 0px;
+}
+
+.posts .col-md-12 {
+    padding-left: 5px;
+    padding-right: 5px;
+    margin-bottom: 0;
+}
+
+#profile-container {
+    padding-left: 30px;
+    padding-right: 30px;
+}
+
+#activity-datail {
+    font-size: 15px;
+    text-align: center;
+    padding-bottom: 5px;
+}
+
+.social-wrapper .social-container .social-entry .padded p.content {
+    font-size: 15px;
+}
+
+#lost {
+    margin-bottom: 5px;
+}
+
+.social-wrapper .social-container .social-entry .padded {
+    margin-left: 5px;
+    margin-right: 5px;
+}
+
+.social-wrapper .social-container .social-entry .padded {
+    margin: 0;
+    margin-left: 15px;
+    margin-right: 15px;
+}
+
+.social-wrapper .social-container .social-entry .comments.padded {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.col-lg-4 .widget-container {
+    margin-top: 15px;
+    margin-left: 20px;
+    margin-right: 20px;
+}
+
+.alert.alert-info {
+    margin-bottom: 0;
+    text-align: center;
+    height: 100px;
+}
+
+#user-page {
+    margin-left: 25px;
+    margin-right: 25px;
+}
+
+.col-md-12.text-center {
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
+
+#image-upload {
+    text-align: center;
+}
+
+.alert {
+    margin-bottom: 0;
+}
+
+.social-wrapper .social-container .social-entry .social-button {
+    padding-bottom: 10px;
+}
+
+.social-wrapper .social-container .social-entry .padded p.content.postcontent {
+    margin-left: 25px;
+    margin-right: 25px;
+    font-size: 1.5em;
+}
+
+.posts p.content {
+    margin: 10px 10px 10px 10px;
+    font-size: 1.5em;
+}
+
+.widget-container .heading [class^="icon-"], .widget-container .heading [class*="icon-"] {
+    font-size: 20px;
+}
+
+.pagination .previous_page {
+    font-size: 2em;
+    margin-right: 20px;
+
+}
+
+.pagination .next_page {
+    font-size: 2em;
+    margin-left: 20px;
+}
+
+.posts .micro-post .widget-container.scrollable {
+    height: 250px;
+}
+
+.widget-container.fluid-height.scrollable.list.user-comments p {
+    margin: 0px;
+}
+
+.activity-details p {
+    font-size: 1.2em;
+}

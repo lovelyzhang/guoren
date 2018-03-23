@@ -1,0 +1,47 @@
+<% provide(:title, '忘记密码') %>
+<% provide(:body_class, 'login2') %>
+
+<div class="login-wrapper">
+  <a href="#"><img width="210" height="70" src="images/logo/guoren.png"/></a>
+
+  <%= form_tag("/changepasswd", method: "post") do %>
+
+      <div class="form-group">
+        <div class="input-group">
+          <span class="input-group-addon"><i class="icon-envelope"></i></span><input class="form-control"
+                                                                                     placeholder="请输入邮箱地址"
+                                                                                     name="email"
+                                                                                     type="email">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <div class="input-group">
+          <span class="input-group-addon"><i class="icon-lock"></i></span><input class="form-control"
+                                                                                         placeholder="请输入邮箱验证码"
+                                                                                         name="verify_code"
+                                                                                         type="number">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <div class="input-group">
+          <span class="input-group-addon"><i class="icon-ok"></i></span><input class="form-control"
+                                                                                 placeholder="请输入新密码"
+                                                                                 name="password"
+                                                                                 type="password">
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="input-group">
+          <span class="input-group-addon"><i class="icon-ok"></i></span><input class="form-control"
+                                                                                 placeholder="请再次输入新密码"
+                                                                                 name="password_confirm"
+                                                                                 type="password">
+        </div>
+      </div>
+
+      <%= submit_tag "重置密码", class: "btn btn-primary btn-block" %>
+  <% end %>
+
+</div>

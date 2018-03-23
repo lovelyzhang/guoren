@@ -1,0 +1,262 @@
+<% provide(:title, @user.name) %>
+
+<div class="modal-shiftfix">
+
+  <!-- Navigation -->
+  <%= render 'layouts/nav' %>
+  <!-- End Navigation -->
+
+  <div class="container-fluid main-content">
+    <!-- Conversation -->
+    <div class="widget-container scrollable chat chat-page row">
+      <div class="contact-list">
+        <div class="heading">
+          我的联系人<i class="icon-plus pull-right" data-toggle="modal" data-target="#addUser"></i>
+        </div>
+        <ul id="contactlists">
+          <% @chat_with_users.each do |name, readed| %>
+              <% if readed == false %>
+                  <li class="user_entry">
+                    <a>
+                      <label class="user_name"><%= name.to_s %></label>
+                      <i class="icon-circle text-success">新短信</i>
+                    </a>
+                  </li>
+              <% else %>
+                  <li class="user_entry">
+                    <a>
+                      <label class="user_name"><%= name.to_s %></label>
+                    </a>
+                  </li>
+              <% end %>
+          <% end %>
+        </ul>
+      </div>
+      <div class="heading">
+        <i class="icon-comments"></i>
+        <lable id="chatwith"></lable>
+      </div>
+      <div id="chatScroll" class="widget-content padded">
+        <ul id="chatList">
+        </ul>
+      </div>
+      <div class="post-message">
+        <input id="msg" class="form-control" placeholder="新信息..." type="text">
+        <input id="msgSubmit" type="submit" value="发送">
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="addUser" tabindex="-1" role="dialog" aria-labelledby="adduser" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="myModalLabel">添加用户</h4>
+      </div>
+      <div class="modal-body">
+        <input id="query_user" type="text" class="form-control" placeholder="用户名称">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+        <button id="query_submit" type="button" class="btn btn-primary">提交</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+
+  function insertSend(name, pic, content, time) {
+    var from =
+            '<li class=" current-user"> ' +
+            '<img width="30" height="30" src="' +
+            pic +
+            '"/>' +
+            '<div class="bubble">' +
+            '<a class="user-name">' +
+            name +
+            '</a>' +
+            '<p class="message">' +
+            content +
+            '</p> <p class="time">' +
+            time +
+            '</p> </div> </li>'
+        ;
+    $("#chatList").append(from);
+
+  }
+
+  function insertRecieve(name, pic, content, time) {
+    var from =
+        '<li>' +
+        '<img width="30" height="30" ' +
+        'src="' +
+        pic +
+        '"/>' +
+        '<div class="bubble">' +
+        '<a class="user-name">' +
+        name +
+        '</a>' +
+        '<p class="message">' +
+        content +
+        '</p>' +
+        '<p class="time">' +
+        time +
+        '</p>' +
+        '</div>' +
+        '</li>';
+    $("#chatList").append(from);
+  }
+
+  function label_click() {
+    name = $(this).find("label").text();
+    $.ajax({
+      type: 'get',
+      dataType: 'json',
+      data: {chat_with: name},
+      url: '/chat',
+      success: function (data, textStatus, jqXHR) {
+        $("#chatList").empty();
+        $('#chatwith').text(name);
+        for (var i = 0; i < data.length; i++) {
+          if (data[i]["issend"] == true) {
+            insertSend(data[i]["name"], data[i]["userpic"], data[i]["content"], data[i]["time"])
+          }
+          else {
+            insertRecieve(data[i]["name"], data[i]["userpic"], data[i]["content"], data[i]["time"]);
+          }
+        }
+        notify();
+        $("#msg").attr("disabled", false);
+        $("#chatScroll").scrollTop($("#chatScroll")[0].scrollHeight);
+      }
+    });
+    $(this).find("i").remove();
+  }
+
+
+  function sendMsg() {
+    var text = $("#msg").val();
+    if (text.length == 0) {
+      return false;
+    }
+    var chat_with_user = $("#chatwith").text();
+    $.ajax({
+      type: 'post',
+      data: {msg: text, chat_with: chat_with_user, authenticity_token: AUTH_TOKEN},
+      dataType: 'json',
+      url: '/newmsg',
+      success: function (data, textStatus, jqXHR) {
+        insertSend(data["username"], data["userpic"], data["content"], data["time"]);
+        $("#chatScroll").scrollTop($("#chatScroll")[0].scrollHeight);
+      }
+    });
+    $("#msg").val("");
+    return true;
+  }
+
+  $("#msgSubmit").click(function () {
+    sendMsg();
+  });
+
+  function append_user(name) {
+    var append_div = '<li class="user_entry">' +
+        '<a>' +
+        '<label class="user_name">' +
+        name +
+        '</label>' +
+        '</a>' +
+        '</li>';
+
+    $("#contactlists").append(append_div)
+
+  }
+
+  function query_user(name) {
+    var all_user_name = [];
+    $(".user_entry label").each(function () {
+      all_user_name.push($(this).text());
+    });
+
+    if (all_user_name.indexOf(name) < 0) {
+      console.log(all_user_name, name);
+      $.ajax({
+        type: 'get',
+        data: {username: name, all: all_user_name},
+        dataType: 'json',
+        url: '/query',
+        success: function (data, textStatus, jqXHR) {
+          if (data["ok"] == true) {
+            append_user(data["username"]);
+            $('.user_entry').bind("click", label_click);
+          }
+        }
+      });
+    }
+    return false;
+  }
+
+  $("#query_submit").click(function () {
+    $('#addUser').modal("hide");
+    var queryname = $("#query_user").val();
+    if (queryname.length != 0) {
+      console.log(queryname);
+      query_user(queryname);
+      $("#query_user").val("");
+    }
+  });
+
+  $(document).ready(function () {
+    $('.user_entry').bind("click", label_click);
+  });
+
+
+  function addOnlineLable(uniquename) {
+    var yuandian = '<i class="icon-circle text-success">新消息</i>';
+    var results = $('.user_name:contains(' + uniquename + ')');
+    for (var i = 0; i < results.length; i++) {
+      if ($(results[i]).text() === uniquename) {
+        if ($(results[i]).parent().find("i").length == 0) {
+          $(results[i]).parent().append(yuandian);
+        }
+      }
+    }
+  }
+
+  function online() {
+    $.ajax({
+      type: 'get',
+      dataType: 'json',
+      url: '/online',
+      success: function (data, textStatus, jqXHR) {
+        if (data["users"] != null) {
+          for (var key in data["users"]) {
+            addOnlineLable(key);
+            var current_chat_with = $("#chatwith").text();
+            if (current_chat_with.length > 0 && current_chat_with == key) {
+              $(".user_name").each(function () {
+                if ($(this).text() == current_chat_with) {
+                  $(this).click();
+                }
+              })
+            }
+          }
+        }
+      }
+    });
+    return false;
+  }
+
+
+  setInterval('online()', 10000);
+
+  $("#msg").bind("keyup", function (e) {
+    if (e.keyCode == "13") {
+      sendMsg();
+    }
+  });
+
+</script>

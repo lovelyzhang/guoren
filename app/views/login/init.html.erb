@@ -1,0 +1,36 @@
+<% provide(:title, '登陆') %>
+<% provide(:body_class, 'login2') %>
+
+<!-- Login Screen -->
+<div class="login-wrapper">
+  <a href="#"><img width="210" height="70" src="images/logo/guoren.png"/></a>
+
+  <%= form_tag(controller: "login", action: "login", method: "post") do %>
+      <div class="form-group">
+        <div class="input-group">
+          <span class="input-group-addon"><i class="icon-user"></i></span><input class="form-control"
+                                                                                     placeholder="请输入登陆邮箱"
+                                                                                     name="email"
+                                                                                     type="text">
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="input-group">
+          <span class="input-group-addon"><i class="icon-lock"></i></span><input class="form-control"
+                                                                                 placeholder="请输入密码"
+                                                                                 name="password"
+                                                                                 type="password">
+        </div>
+      </div>
+      <a class="pull-right" href="/forgetpasswd">忘记密码？</a>
+      <!--<div class="text-left">-->
+        <!--<label class="checkbox"><input type="checkbox" name="remember"><span>记住我</span></label>-->
+      <!--</div>-->
+      <input class="btn btn-lg btn-primary btn-block" type="submit" value="登陆">
+  <% end %>
+  <p>
+    还没有果壳账号？
+  </p>
+  <%= link_to "注册新账户", signup_path, class: "btn btn-default-outline btn-block" %>
+</div>
+<!-- End Login Screen -->

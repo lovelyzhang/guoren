@@ -1,0 +1,33 @@
+  <%= form_for @user, url: {action: "changepasswd"} do |f| %>
+      <%= render 'shared/error_messages', object: f.object %>
+
+      <div class="form-group">
+        <div class="input-group">
+          <span class="input-group-addon"><i class="icon-lock"></i></span>
+          <input class="form-control" placeholder="请输入邮箱验证码" name="verify_code" type="text">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <div class="input-group">
+          <span class="input-group-addon"><i class="icon-envelope"></i></span>
+          <%= f.email_field :email, class: 'form-control', placeholder: "请输入邮箱" %>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <div class="input-group">
+          <span class="input-group-addon"><i class="icon-ok"></i></span>
+          <%= f.password_field :password, class: 'form-control', placeholder: "请输入密码" %>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <div class="input-group">
+          <span class="input-group-addon"><i class="icon-ok"></i></span>
+          <%= f.password_field :password_confirmation, class: 'form-control', placeholder: "请再次输入密码" %>
+        </div>
+      </div>
+
+      <%= f.submit "重置密码", class: "btn btn-primary btn-block" %>
+  <% end %>

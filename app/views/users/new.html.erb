@@ -1,0 +1,48 @@
+<% provide(:title, '用户注册') %>
+<% provide(:body_class, 'login2') %>
+
+<div class="login-wrapper">
+  <a href="#"><img width="210" height="70" src="images/logo/guoren.png"/></a>
+
+
+
+  <%= form_for(@user) do |f| %>
+      <%= render 'shared/error_messages', object: f.object %>
+
+      <div class="form-group">
+        <div class="input-group">
+          <span class="input-group-addon"><i class="icon-user"></i></span>
+          <%= f.text_field :name, class: 'form-control', placeholder: "请输入名称" %>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <div class="input-group">
+          <span class="input-group-addon"><i class="icon-envelope"></i></span>
+          <%= f.email_field :email, class: 'form-control', placeholder: "请输入邮箱" %>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <div class="input-group">
+          <span class="input-group-addon"><i class="icon-ok"></i></span>
+          <%= f.password_field :password, class: 'form-control', placeholder: "请输入密码" %>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <div class="input-group">
+          <span class="input-group-addon"><i class="icon-ok"></i></span>
+          <%= f.password_field :password_confirmation, class: 'form-control',placeholder: "请再次输入密码" %>
+        </div>
+      </div>
+
+      <%= f.submit "注册", class: "btn btn-primary btn-block" %>
+  <% end %>
+
+  <p>
+    已经有果壳账号？
+  </p>
+  <%= link_to "登陆", login_path, class: "btn btn-default-outline btn-block" %>
+
+</div>
